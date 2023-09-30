@@ -18,6 +18,7 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import { useEffect, useRef, useState } from 'react';
 import * as css from './progression.module.css'
+import useProgresionGenerator from '@/hooks/useProgresionGenerator';
 
 const CHORDS = [
     ["C4", "E4", "G4"],
@@ -36,34 +37,13 @@ function getChordIndex(chord) {
 }
 
 export default function One() {
-    const pianoBackgroundRef = useRef(null); // Initialize the reference
-    const pianoMelodyRef = useRef(null); // Initialize the reference
+    const { pianoRef: pianoMelodyRef } = useProgresionGenerator()
+    const { pianoRef: pianoBackgroundRef } = useProgresionGenerator()
     const [activeChord, setActiveChord] = useState(null)
     const [activePianoNote, setActivePianoNote] = useState(null)
 
     useEffect(() => {
-        const pianoBackGround = new Tone.Sampler(
-            { C4, D4, E4, F4, G4, A4, B4, C5, D5, E5 },
-            {
-                onload: () => {
-                    console.log('loaded');
-                }
-            }
-        ).toDestination();
-
-        const pianoMelody = new Tone.Sampler(
-            { C4, D4, E4, F4, G4, A4, B4, C5, D5, E5 },
-            {
-                onload: () => {
-                    console.log('loaded');
-                }
-            }
-        ).toDestination();
-
-        pianoBackGround.volume.value = -12
-
-        pianoBackgroundRef.current = pianoBackGround;
-        pianoMelodyRef.current = pianoMelody;
+        pianoBackgroundRef.current.volume.value = -12
     }, []);
 
     function playProgression() {
