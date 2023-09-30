@@ -1,4 +1,6 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './globals.css'
+
 import { Raleway } from 'next/font/google'
 
 const raleway = Raleway({ subsets: ['latin'] })
