@@ -5,6 +5,7 @@ export default function One({ children }) {
     return (
         <div className={rules.container}>
             {children}
+            <hr />
         </div>
     )
 }
