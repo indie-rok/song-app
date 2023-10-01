@@ -2,6 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import * as Tone from 'tone';
+import Form from 'react-bootstrap/Form';
+
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -58,15 +60,14 @@ export default function One() {
         <>
             <Row>
                 <Col>
-                    <h1>Learning Music is easy</h1>
-                    <p>Listen to the following chords. They sound good right?</p>
+                    <h1>Learning SongWritting is easy</h1>
+                    <p>Click the play button and write below what do you think about this notes</p>
                 </Col>
             </Row>
 
             <Row>
                 <Button onClick={playProgression}>Play try</Button>
             </Row>
-
 
             <Row>
                 <section className={css.progressionContainer}>
@@ -77,10 +78,30 @@ export default function One() {
                 </section>
             </Row>
 
+            <hr />
+
+            <Row>
+                <Form.Group className="mb-3" controlId="text">
+                    <Form.Control as="textarea"
+                        required
+                        type="text"
+                        placeholder="write here"
+                    />
+                </Form.Group>
+            </Row>
+
+            <hr></hr>
+
+            <Row>
+                <Col>
+                    <p>How ever, it stills feel a bit empty...</p>
+                    <p>Maybe we can add melody?</p>
+                </Col>
+            </Row>
 
             <Row>
                 <Button onClick={() => {
-                    if (partRef) {
+                    if (partRef.current) {
                         partRef.current.stop()
                     }
 

@@ -2,7 +2,7 @@
 
 import * as Tone from 'tone';
 import useProgresionGenerator from '@/hooks/useProgresionGenerator'
-import { Row } from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import * as css from './keyboard.module.css'
 import * as cssProgression from '../1/progression.module.css'
@@ -53,9 +53,9 @@ export default function Page() {
     return (
         <>
             <Row>
-                <h3>But melody is important</h3>
+                <h3>Melody is what makes your song complete</h3>
 
-                <p>Press the Play button and then any of the white piano keys (it will sound good)</p>
+                <p>Press the Play button and then any of the white piano keys (it will sound good, I promise)</p>
                 <Button onClick={playProgression}>Play</Button>
             </Row>
 
@@ -83,10 +83,24 @@ export default function Page() {
                 <li className={`${css.white} ${css.offset}`} onClick={() => play('B4')}></li>
             </ul>
 
+            <hr />
+
+            <Row>
+                <Col>
+                    <p>However, most of songs you know, dont have only piano keys</p>
+                    <p>They have a voice</p>
+                    <p>Lets use your voice instead of piano keys</p>
+                </Col>
+            </Row>
+
             <Row>
                 <Button onClick={() => {
+                    if (partRef.current) {
+                        partRef.current.stop()
+                    }
+
                     router.push('/onboarding/3')
-                }}>Add your voice</Button>
+                }}>Use my voice</Button>
             </Row>
         </>
     )

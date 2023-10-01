@@ -1,28 +1,57 @@
 'use client'
 
 import * as Tone from 'tone';
-import * as cssProgression from '../1/progression.module.css'
-
-import { createRef, useState } from "react";
+import useProgresionGenerator from "@/hooks/useProgresionGenerator"
+import { createRef } from "react";
 import { Row, Button, Col } from "react-bootstrap"
-import useProgresionGenerator from '@/hooks/useProgresionGenerator';
-import { getChordIndex } from '@/utils/getChordIndex';
+import { useRouter } from 'next/navigation';
+import Form from 'react-bootstrap/Form';
 
-const MicRecorder = () => {
-    const micRef = createRef(null);
-    const recorderRef = createRef(null);
-    const playerRef = createRef(null);
+const progression = [
+    ["0:0:0", ["C4", "E4", "G4"]],
+    ["0:4:0", ["A4", "C5", "E5"]],
+    ["0:8:0", ["F4", "A4", "C5"]],
+    ["0:12:0", ["G4", "B4", "D5"]],
+];
+
+export default function Page() {
     const { pianoRef: pianoBackgroundRef } = useProgresionGenerator()
+    const router = useRouter()
+
     const partRef = createRef(null)
-    const [activeChord, setActiveChord] = useState(null)
+    const micRef = createRef(null)
+    const recorderRef = createRef(null)
+    const playerRef = createRef(null)
 
-    console.log('part', partRef)
-    console.log("recorder", recorderRef)
+    async function playProgression() {
+        pianoBackgroundRef.current.volume.value = -20
 
-    const startRecording = async () => {
-        let stream;
+        await Tone.start()
+        partRef.current = new Tone.Part((time, chord) => {
+            pianoBackgroundRef.current.triggerAttackRelease(chord, "1n", time);
+
+            Tone.Draw.schedule(function () {
+                // setActiveChord(getChordIndex(chord))
+            }, time)
+        }, progression);
+
+        Tone.Transport.bpm.value = 180
+        Tone.Transport.start()
+
+        partRef.current.loop = true;
+        partRef.current.loopEnd = "0:16:0";  // Loop every bar
+        partRef.current.start()
+    }
+
+    function stopProgression() {
+        partRef.current.stop()
+    }
+
+    async function startRecord() {
+        await Tone.start()
+        playProgression()
         try {
-            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            await navigator.mediaDevices.getUserMedia({ audio: true });
         } catch (err) {
             console.error("Microphone access denied:", err);
             return;
@@ -41,110 +70,119 @@ const MicRecorder = () => {
         } catch (err) {
             console.error("Error opening microphone:", err);
         }
-    };
+    }
 
-    const handleRecord = () => {
-        if (Tone.context.state !== 'running') {
-            Tone.start().then(() => {
-                startRecording();
-            });
-        } else {
-            startRecording();
-        }
-    };
-
-    const handleStopRecord = async () => {
-
+    async function stopRecord() {
         const buffer = await recorderRef.current.stop();
-        console.log("Recording stopped.");
+        stopProgression()
 
         let blobUrl = URL.createObjectURL(buffer);
-        playerRef.current = new Tone.Player(blobUrl).toDestination();
 
-        console.log("Playing back the recorded audio...");
+        playerRef.current = new Tone.Player(blobUrl, () => {
+            console.log("buffer loaded")
+        }).toDestination();
 
-        playerRef.current.onstop = () => {
+
+
+        recorderRef.current.onstop = () => {
             micRef.current.close();
             console.log("Microphone closed.");
         };
     }
 
-    function playProgression() {
-        pianoBackgroundRef.current.volume.value = -12
-        Tone.start()
-        const progression = [
-            ["0:0:0", ["C4", "E4", "G4"]],
-            ["0:4:0", ["A4", "C5", "E5"]],
-            ["0:8:0", ["F4", "A4", "C5"]],
-            ["0:12:0", ["G4", "B4", "D5"]],
-        ];
-
-        const part = new Tone.Part((time, chord) => {
-            pianoBackgroundRef.current.triggerAttackRelease(chord, "1n", time);
-
-            Tone.Draw.schedule(function () {
-                setActiveChord(getChordIndex(chord))
-            }, time)
-        }, progression);
-
-        Tone.Transport.bpm.value = 180
-        Tone.Transport.start()
-
-        partRef.current = part
-        partRef.current.loop = true;
-        partRef.current.loopEnd = "0:16:0";  // Loop every bar
-        partRef.current.start()
-    }
-
-    function stopProgression() {
-        partRef.current.stop()
+    async function playRecording() {
+        await Tone.start()
+        playerRef.current.volume.value = +2
+        playerRef.current.start()
     }
 
     return (
         <>
+
+            <Row>
+                <Col>
+                    <h1>Using my voice</h1>
+                    <p>Now, you are going to talk with the background music (not even sing)</p>
+
+                    <p>Write down about some ideas that you want to talk</p>
+
+                    <Form.Group className="mb-3" controlId="text">
+                        <Form.Control as="textarea"
+                            required
+                            type="text"
+                            placeholder="write here"
+                        />
+                    </Form.Group>
+
+                </Col>
+            </Row>
+
+            <hr />
+            <Row>
+                <Col>
+                    <p>Now, Play the background music again, listen it a few times</p>
+                </Col>
+            </Row>
             <Row>
                 <Col>
                     <Button onClick={() => {
                         playProgression()
                     }}>Play progression</Button>
                 </Col>
+            </Row>
 
+            <Row>
                 <Col>
+                    <p>Press stop after a few times (your brain was getting ready :))</p>
                     <Button onClick={stopProgression}>Stop progression</Button>
                 </Col>
             </Row>
 
+            <hr />
+
+
+
             <Row>
-                <section className={cssProgression.progressionContainer}>
-                    <div className={`${cssProgression.progressionElement} ${cssProgression.red} ${activeChord === 0 ? cssProgression.active : ''} `}></div>
-                    <div className={`${cssProgression.progressionElement} ${cssProgression.yellow} ${activeChord === 1 ? cssProgression.active : ''}`}></div>
-                    <div className={`${cssProgression.progressionElement} ${cssProgression.blue} ${activeChord === 2 ? cssProgression.active : ''}`}></div>
-                    <div className={`${cssProgression.progressionElement} ${cssProgression.green} ${activeChord === 3 ? cssProgression.active : ''}`}></div>
-                </section>
+                <Col>
+                    <h4>Press the record button when you  are ready</h4>
+
+                    <p>(when you press the record button, you will listen also the backgroun music)</p>
+                    <Button onClick={() => {
+                        startRecord()
+                    }}>Record</Button>
+                </Col>
             </Row>
 
 
             <Row>
                 <Col>
+                    <p>Now press finish after you are done</p>
                     <Button onClick={() => {
-                        handleRecord()
-                    }}>Recording</Button>
+                        stopRecord()
+                    }}>Stop Record</Button>
                 </Col>
+            </Row>
 
+            <hr />
+
+            <Row>
+                <Col><h3>Congratz! this is your first song:</h3></Col>
+            </Row>
+
+            <Row>
+                <Col>
+
+                    <Button onClick={() => {
+                        playRecording()
+                        playProgression()
+                    }}>Play Recording</Button>
+                </Col>
                 <Col>
                     <Button onClick={() => {
-                        handleStopRecord()
-                    }}>Stop</Button>
+                        window.location.reload()
+                    }}>Try Again</Button>
                 </Col>
-
-                <Button onClick={() => {
-                    playProgression()
-                    playerRef.current.start()
-                }}>Play Record progression</Button>
             </Row>
         </>
-    );
-};
-
-export default MicRecorder;
-
+    )
+}

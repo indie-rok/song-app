@@ -72,8 +72,7 @@
 .keyboard {
   height: 15.25rem;
   width: 41rem;
-  margin: 0.5rem auto;
-  padding: 3rem 0 0 3rem;
+  margin: 0.5rem 7.5rem;
   position: relative;
   border: 1px solid var(--keyboard-border);
   border-radius: 1rem;
