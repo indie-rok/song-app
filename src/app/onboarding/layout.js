@@ -3,8 +3,8 @@ import Container from 'react-bootstrap/Container';
 
 export default function One({ children }) {
     return (
-        <Container className={rules.container}>
+        <div className={rules.container}>
             {children}
-        </Container>
+        </div>
     )
 }

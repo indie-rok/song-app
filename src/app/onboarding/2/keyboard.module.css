@@ -20,7 +20,7 @@
 
 .white {
   height: 12.5rem;
-  width: 3.5rem;
+  width: 2.8rem;
   z-index: 1;
   border-left: 1px solid hsl(0, 0%, 73%);
   border-bottom: 1px solid hsl(0, 0%, 73%);
@@ -72,7 +72,6 @@
 .keyboard {
   height: 15.25rem;
   width: 41rem;
-  margin: 0.5rem 7.5rem;
   position: relative;
   border: 1px solid var(--keyboard-border);
   border-radius: 1rem;
