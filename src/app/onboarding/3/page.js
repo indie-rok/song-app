@@ -183,6 +183,8 @@ export default function Page() {
                     }}>Try Again</Button>
                 </Col>
             </Row>
+
+            <hr></hr>
         </>
     )
 }
